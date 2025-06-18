@@ -1,0 +1,10 @@
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+*.cmake
+*.ninja
+*.log
+*.yaml
+*.bin
+*.exe
+CMakeLists.txt
