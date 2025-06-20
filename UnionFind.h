@@ -6,8 +6,10 @@
         struct Node{
             Elem element; //so this would be song
             Node* parent;
+            Node* srcPtr;
             int groupId;
-            explicit Node(const Elem& element, int groupId) : element(element), parent(nullptr), groupId(groupId) {}
+            explicit Node(const Elem& element, int groupId) : element(element), parent(nullptr),
+                          srcPtr(nullptr) ,groupId(groupId) {}
             Node* findRoot(Node* current);
         };
         HashTab<int, std::shared_ptr<Node>> elementsTable;
@@ -16,8 +18,8 @@
     public:
         UnionFind();
         ~UnionFind();
-        Group* find(int elementId);
-        bool makeSet(int elementId, int groupId, const Elem& newElement, const Elem& group);
+        int find(int elementId);
+        bool makeSet(int elementId, int groupId, const Elem& newElement);
         bool unionGroups(int groupId1, int groupId2, int groupId3);
     };
 
