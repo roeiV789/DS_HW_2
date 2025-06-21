@@ -1,5 +1,5 @@
 #pragma once
-#include "HashTab.h"
+//#include "HashTab.h"
 #include <memory>
 template<class Elem>
 
@@ -25,9 +25,10 @@ struct GroupNode{
 
 template<class Group, class Elem>
 class UnionFind {
-
-    HashTab<int, std::shared_ptr<ElementNode<Elem>>> elementsTable;
-    HashTab<int, std::unique_ptr<GroupNode<Group,Elem>>> groupsTable;
+        std::shared_ptr<ElementNode<Elem>> elementsTable[10];
+        std::shared_ptr<GroupNode<Group, Elem>> groupsTable[10];
+    // HashTab<int, std::shared_ptr<ElementNode<Elem>>> elementsTable;
+    // HashTab<int, std::unique_ptr<GroupNode<Group,Elem>>> groupsTable;
 
     public:
         UnionFind();
