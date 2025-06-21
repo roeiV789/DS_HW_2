@@ -4,7 +4,7 @@
 template<class Elem>
 
 struct ElementNode{
-    Elem& element; //so this would be song
+    Elem element; //so this would be song
     ElementNode* parent;
     int groupId;
     ElementNode(const Elem& element, int groupId) : element(element), parent(nullptr),
@@ -13,7 +13,7 @@ struct ElementNode{
 };
 template<class Group, class Elem>
 struct GroupNode{
-    Group& group; //so this would be song
+    Group group; //so this would be song
     ElementNode<Elem>* root;
     int groupId;
     int size;
@@ -35,6 +35,7 @@ class UnionFind {
         bool addElement(int elementId, const Elem &element, int groupId);
         bool addGroup(int groupId, const Group &group);
         bool unionGroups(int groupId1, int groupId2, int groupId3);
+        int groupSize(int groupId) const;
 
 };
 

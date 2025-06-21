@@ -34,14 +34,13 @@ bool UnionFind<Group, Elem>::addGroup(int groupId, const Group &group) {
         return false;
     }
     std::shared_ptr<GroupNode<Group, Elem> > newGroup = make_shared<GroupNode<Group, Elem> >(group, groupId);
-    groupsTable.insert(newGroup);
+    groupsTable.insert(groupId,newGroup);
     return true;
 }
 
 template<class Group, class Elem>
 bool UnionFind<Group, Elem>::addElement(int elementId, const Elem &element, int groupId) {
-    auto elementPtr = elementsTable.hash(elementId);
-    if (elementPtr) {
+    if (elementsTable.hash(elementId)) {
         return false;
     }
     auto groupPtr = groupsTable.hash(groupId);
@@ -50,11 +49,12 @@ bool UnionFind<Group, Elem>::addElement(int elementId, const Elem &element, int 
     }
     std::shared_ptr<ElementNode<Elem> > newElement = make_shared<ElementNode<Elem> >(element, groupId);
     if (groupPtr->size == 0) {
-        groupPtr->root = elementPtr.get();
-        groupPtr->size++;
+        groupPtr->root = newElement.get();
     } else {
         newElement->parent = groupPtr->root;
     }
+    groupPtr->size++;
+    elementsTable.insert(elementId,newElement);
     return true;
 }
 
@@ -73,16 +73,27 @@ bool UnionFind<Group, Elem>::unionGroups(int groupId1, int groupId2, int groupId
     groupsTable.insert(groupId3, mergedGroup);
     if (rootPtr1->size >= rootPtr2->size) {
         mergedGroup->root = rootPtr1->root;
-        rootPtr2->parent = mergedGroup->root;
+        mergedGroup->root->groupId = groupId3;
+        rootPtr2->root->parent = mergedGroup->root;
     } else {
         mergedGroup->root = rootPtr2->root;
-        rootPtr1->parent = mergedGroup->root;
+        mergedGroup->root->groupId = groupId3;
+        rootPtr1->root->parent = mergedGroup->root;
     }
     //the groups are now empty
-    rootPtr1.size=0;
-    rootPtr2.size=0;
+    rootPtr1->size=0;
+    rootPtr2->size=0;
     //should change this based on how hash table is implemented
     groupsTable.hash(groupId1) = nullptr;
     groupsTable.hash(groupId2) = nullptr;
     return true;
+}
+
+template<class Group, class Elem>
+int UnionFind<Group, Elem>::groupSize(int groupId) const {
+    auto groupPtr = groupsTable.hash(groupId);
+    if (!groupPtr) {
+        return -1;
+    }
+    return groupPtr->size;
 }
