@@ -63,18 +63,29 @@ void unit_test3() {
     assert(uf.addElement(1,1,0));
     assert(uf.addElement(2,2,0));
     assert(uf.addElement(3,3,1));
+    assert(uf.addElement(4,4,1));
     //let's check if the starting value of each node is correct
-    assert(uf.getDifferentGroupsNumber(0)==0);
-    assert(uf.getDifferentGroupsNumber(1)==0);
-    assert(uf.getDifferentGroupsNumber(2)==0);
-    assert(uf.getDifferentGroupsNumber(3)==0);
-    assert(uf.unionGroups(0,1,2)==true);
-    std::cout << uf.getDifferentGroupsNumber(0) << std::endl;
     assert(uf.getDifferentGroupsNumber(0)==1);
-    //assert(uf.getDifferentGroupsNumber(1)==1);
-    //assert(uf.getDifferentGroupsNumber(2)==1);
-    std::cout << uf.getDifferentGroupsNumber(3) << std::endl;
-
-    //assert(uf.getDifferentGroupsNumber(3)==1);
+    assert(uf.getDifferentGroupsNumber(1)==1);
+    assert(uf.getDifferentGroupsNumber(2)==1);
+    assert(uf.getDifferentGroupsNumber(3)==1);
+    assert(uf.unionGroups(0,1,2)==true);
+    assert(uf.getDifferentGroupsNumber(0)==2);
+    assert(uf.getDifferentGroupsNumber(1)==2);
+    assert(uf.getDifferentGroupsNumber(2)==2);
+    assert(uf.getDifferentGroupsNumber(3)==2);
+    assert(uf.getDifferentGroupsNumber(4)==2);
+    uf.addGroup(3,3);
+    uf.addElement(5,5,3);
+    uf.addElement(6,6,3);
+    uf.unionGroups(3,2,4);
+    assert(uf.getDifferentGroupsNumber(5)==2);
+    assert(uf.getDifferentGroupsNumber(6)==2);
+    //single element check
+    uf.addElement(7,7,4);
+    assert(uf.getDifferentGroupsNumber(7)==1);
+    assert(uf.unionGroups(0,1,8)==true);
+    assert(uf.groupSize(8)==0);
+    uf.unionGroups(4,8,9);
 
 }

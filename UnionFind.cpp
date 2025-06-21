@@ -1,13 +1,14 @@
 #include "UnionFind.h"
-
-
 template<class Elem>
 ElementNode<Elem> *ElementNode<Elem>::findRoot() {
     if (!parent) {
         return this;
     }
-    ElementNode* root = parent->findRoot();
-    groupChanges += parent->groupChanges; //path compression optimization
+    //path compression optimization
+    ElementNode *root = parent->findRoot();
+    if(parent!=root) {
+        groupChanges+=parent->groupChanges;
+    }
     parent = root;
     return root;
 }
@@ -37,7 +38,7 @@ bool UnionFind<Group, Elem>::addGroup(int groupId, const Group &group) {
         return false;
     }
     std::shared_ptr<GroupNode<Group, Elem> > newGroup = std::make_shared<GroupNode<Group, Elem> >(group, groupId);
-    groupsTable[groupId]=newGroup;
+    groupsTable[groupId] = newGroup;
     return true;
 }
 
@@ -55,9 +56,10 @@ bool UnionFind<Group, Elem>::addElement(int elementId, const Elem &element, int 
         groupPtr->root = newElement.get();
     } else {
         newElement->parent = groupPtr->root;
+        newElement->groupChanges-=groupPtr->root->groupChanges;
     }
-    groupPtr->size+=1;
-    elementsTable[elementId]=newElement;
+    groupPtr->size += 1;
+    elementsTable[elementId] = newElement;
     return true;
 }
 
@@ -65,7 +67,7 @@ template<class Group, class Elem>
 bool UnionFind<Group, Elem>::unionGroups(int groupId1, int groupId2, int groupId3) {
     auto rootPtr1 = groupsTable[groupId1];
     auto rootPtr2 = groupsTable[groupId2];
-    if (!rootPtr1|| !rootPtr2 || groupsTable[groupId3]) {
+    if (!rootPtr1 || !rootPtr2 || groupsTable[groupId3]) {
         return false;
     }
     if (rootPtr1->groupId == rootPtr2->groupId) {
@@ -75,19 +77,28 @@ bool UnionFind<Group, Elem>::unionGroups(int groupId1, int groupId2, int groupId
     mergedGroup->size = rootPtr1->size + rootPtr2->size;
     groupsTable[groupId3] = mergedGroup;
     if (rootPtr1->size >= rootPtr2->size) {
+        //updating the pointers of the new group
         mergedGroup->root = rootPtr1->root;
         mergedGroup->root->groupId = groupId3;
         rootPtr2->root->parent = mergedGroup->root;
-        mergedGroup->root->groupChanges = 1;
+        //updating groupChanges field - big tree increases, small tree will hold the difference for sum up the tree
+        mergedGroup->root->groupChanges += 1;
+        rootPtr2->root->groupChanges +=1;
+        rootPtr2->root->groupChanges -= mergedGroup->root->groupChanges;
     } else {
+        //updating the pointers of the new group
         mergedGroup->root = rootPtr2->root;
         mergedGroup->root->groupId = groupId3;
         rootPtr1->root->parent = mergedGroup->root;
-        mergedGroup->root->groupChanges = 1;
+        //updating groupChanges field - big tree increases, small tree will hold the difference for sum up the tree
+        mergedGroup->root->groupChanges += 1;
+        rootPtr1->root->groupChanges +=1;
+        rootPtr1->root->groupChanges -= mergedGroup->root->groupChanges;
     }
+
     //the groups are now empty
-    rootPtr1->size=0;
-    rootPtr2->size=0;
+    rootPtr1->size = 0;
+    rootPtr2->size = 0;
     return true;
 }
 
@@ -106,11 +117,15 @@ int UnionFind<Group, Elem>::getDifferentGroupsNumber(int elementId) const {
     if (!elementPtr) {
         return -1;
     }
-    ElementNode<Elem>* current=elementPtr.get();
-    int sum=0;
-    while(current->parent) {
-        sum+=current->groupChanges;
-        current=current->parent;
+
+    elementPtr->findRoot();//path compression and groupChanges update
+    int sum = 0;
+    if(!elementPtr->parent) {
+        sum=elementPtr->groupChanges;
     }
-    return sum;
+    else {
+        sum=elementPtr->groupChanges+elementPtr->parent->groupChanges;
+    }
+    return sum+1;
+
 }
