@@ -6,8 +6,10 @@ ElementNode<Elem> *ElementNode<Elem>::findRoot() {
     if (!parent) {
         return this;
     }
-    parent = parent->findRoot(); //path compression optimization
-    return parent;
+    ElementNode* root = parent->findRoot();
+    groupChanges += parent->groupChanges; //path compression optimization
+    parent = root;
+    return root;
 }
 
 template<class Group, class Elem>
@@ -75,10 +77,12 @@ bool UnionFind<Group, Elem>::unionGroups(int groupId1, int groupId2, int groupId
         mergedGroup->root = rootPtr1->root;
         mergedGroup->root->groupId = groupId3;
         rootPtr2->root->parent = mergedGroup->root;
+        rootPtr2->root->groupChanges = 1;
     } else {
         mergedGroup->root = rootPtr2->root;
         mergedGroup->root->groupId = groupId3;
         rootPtr1->root->parent = mergedGroup->root;
+        rootPtr1->root->groupChanges = 1;
     }
     //the groups are now empty
     rootPtr1->size=0;
@@ -96,4 +100,19 @@ int UnionFind<Group, Elem>::groupSize(int groupId) const {
         return -1;
     }
     return groupPtr->size;
+}
+
+template<class Group, class Elem>
+int UnionFind<Group, Elem>::getDifferentGroupsNumber(int elementId) const {
+    auto elementPtr = elementsTable.hash(elementId);
+    ElementNode<Elem>* current=elementPtr.get();
+    if (!elementPtr) {
+        return -1;
+    }
+    int sum=0;
+    while(current->parent) {
+        sum+=current->groupChanges;
+        current=current->parent;
+    }
+    return sum;
 }

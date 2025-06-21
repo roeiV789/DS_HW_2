@@ -7,8 +7,9 @@ struct ElementNode{
     Elem element; //so this would be song
     ElementNode* parent;
     int groupId;
+    int groupChanges;
     ElementNode(const Elem& element, int groupId) : element(element), parent(nullptr),
-                  groupId(groupId) {}
+                  groupId(groupId), groupChanges(0) {}
     ElementNode* findRoot();
 };
 template<class Group, class Elem>
@@ -36,6 +37,6 @@ class UnionFind {
         bool addGroup(int groupId, const Group &group);
         bool unionGroups(int groupId1, int groupId2, int groupId3);
         int groupSize(int groupId) const;
-
+        int getDifferentGroupsNumber(int elementId) const;
 };
 
