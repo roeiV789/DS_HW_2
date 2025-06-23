@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_executable(HW2
         unit_tests.cpp
         UnionFind.h
+        HashTable.h
         wet2util.h
         main25b2.cpp
 )
