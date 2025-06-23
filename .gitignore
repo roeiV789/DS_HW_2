@@ -7,4 +7,5 @@ CMakeCache.txt
 *.yaml
 *.bin
 *.exe
+.idea
 CMakeLists.txt
