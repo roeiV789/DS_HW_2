@@ -12,14 +12,15 @@
 
 #ifndef DSPOTIFY25SPRING_WET2_H_
 #define DSPOTIFY25SPRING_WET2_H_
-
+#include "UnionFind.h"
 #include "wet2util.h"
 
 class DSpotify {
 private:
-    //
-    // Here you may add anything you want
-    //
+    //union find data structure using dynamic hash table
+    //first type is the group - genre id
+    //second type is the song - songid
+    UnionFind<int, int> GS_UF ;
     
 public:
     // <DO-NOT-MODIFY> {
