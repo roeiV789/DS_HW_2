@@ -48,6 +48,10 @@ public:
 
     const T &get(int id) const;
 
+    T &operator[](int index);
+
+    const T &operator[](int index) const;
+
     void erase(int id);
 
     int getSize() const;
@@ -218,4 +222,9 @@ int HashTable<T>::getCapacity() const {
     return capacity;
 }
 
+template<typename T>
+T &HashTable<T>::operator[](int index) { return get(index); }
+
+template<typename T>
+const T &HashTable<T>::operator[](int index) const { return get(index); }
 #endif // HASHTABLE_H

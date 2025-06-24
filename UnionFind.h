@@ -1,6 +1,5 @@
 #pragma once
-//#include "HashTab.h"
-#include <memory>
+#include "HashTable.h"
 
 template<class Elem>
 
@@ -32,10 +31,8 @@ struct GroupNode {
 
 template<class Group, class Elem>
 class UnionFind {
-    std::shared_ptr<ElementNode<Elem> > elementsTable[10];
-    std::shared_ptr<GroupNode<Group, Elem> > groupsTable[10];
-    // HashTab<int, std::shared_ptr<ElementNode<Elem>>> elementsTable;
-    // HashTab<int, std::unique_ptr<GroupNode<Group,Elem>>> groupsTable;
+    HashTable<std::shared_ptr<ElementNode<Elem> > > elementsTable;
+    HashTable<std::unique_ptr<GroupNode<Group, Elem> > > groupsTable;
 
 public:
     UnionFind();
@@ -48,11 +45,11 @@ public:
 
     bool addGroup(int groupId, const Group &group);
 
-    bool unionGroups(int groupId1, int groupId2, int groupId3);
+    bool uniteGroups(int groupId1, int groupId2, int groupId3);
 
     int groupSize(int groupId) const;
 
-    int getDifferentGroupsNumber(int elementId) const;
+    int getNumberOfGroupChanges(int elementId) const;
 };
 
 template<class Elem>
@@ -120,7 +117,7 @@ bool UnionFind<Group, Elem>::addElement(int elementId, const Elem &element, int 
 }
 
 template<class Group, class Elem>
-bool UnionFind<Group, Elem>::unionGroups(int groupId1, int groupId2, int groupId3) {
+bool UnionFind<Group, Elem>::uniteGroups(int groupId1, int groupId2, int groupId3) {
     auto rootPtr1 = groupsTable[groupId1];
     auto rootPtr2 = groupsTable[groupId2];
     if (!rootPtr1 || !rootPtr2 || groupsTable[groupId3]) {
@@ -167,8 +164,9 @@ int UnionFind<Group, Elem>::groupSize(int groupId) const {
     return groupPtr->size;
 }
 
+// Returns -1 if the element does not exist
 template<class Group, class Elem>
-int UnionFind<Group, Elem>::getDifferentGroupsNumber(int elementId) const {
+int UnionFind<Group, Elem>::getNumberOfGroupChanges(int elementId) const {
     auto elementPtr = elementsTable[elementId];
     if (!elementPtr) {
         return -1;
