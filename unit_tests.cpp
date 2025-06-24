@@ -13,6 +13,7 @@ void unitTest3();
 void unitTestHashTable1();
 
 void unitTestHashTable2();
+
 int main() {
     unitTest1();
     unitTest2();
@@ -31,16 +32,16 @@ void unitTest1() {
     assert(uf.addElement(1,1,0));
     assert(uf.addElement(2,2,0));
     assert(uf.addElement(3,3,1));
-    assert(uf.find(2)==0);
-    assert(uf.find(3)==1);
+    assert(uf.findElementGroup(2)==0);
+    assert(uf.findElementGroup(3)==1);
     assert(uf.groupSize(0)==3);
     assert(uf.groupSize(1)==1);
-    uf.unionGroups(0, 1, 2);
+    uf.uniteGroups(0, 1, 2);
     assert(uf.groupSize(0)==0);
     assert(uf.groupSize(1)==0);
     assert(uf.groupSize(2)==4);
-    assert(uf.find(2)==2);
-    assert(uf.find(3)==2);
+    assert(uf.findElementGroup(2)==2);
+    assert(uf.findElementGroup(3)==2);
     std::cout << "test1 passed" << std::endl;
 }
 
@@ -53,14 +54,14 @@ void unitTest2() {
     assert(uf.addElement(1,1,0));
     assert(uf.addElement(2,2,0));
     assert(uf.addElement(3,3,1));
-    assert(uf.find(4)<0);
-    assert(uf.find(0)>=0);
+    assert(uf.findElementGroup(4)<0);
+    assert(uf.findElementGroup(0)>=0);
     assert(uf.addGroup(0,0)==false);
     assert(uf.addElement(2,2,0)==false);
     assert(uf.addElement(3,3,4)==false);
-    assert(uf.unionGroups(3,0,5)==false);
-    assert(uf.unionGroups(1,3,5)==false);
-    assert(uf.unionGroups(0,0,4)==false);
+    assert(uf.uniteGroups(3,0,5)==false);
+    assert(uf.uniteGroups(1,3,5)==false);
+    assert(uf.uniteGroups(0,0,4)==false);
     assert(uf.groupSize(4)==-1);
     std::cout << "test2 passed" << std::endl;
 }
@@ -76,31 +77,32 @@ void unitTest3() {
     assert(uf.addElement(3,3,1));
     assert(uf.addElement(4,4,1));
     //let's check if the starting value of each node is correct
-    assert(uf.getDifferentGroupsNumber(0)==1);
-    assert(uf.getDifferentGroupsNumber(1)==1);
-    assert(uf.getDifferentGroupsNumber(2)==1);
-    assert(uf.getDifferentGroupsNumber(3)==1);
-    assert(uf.unionGroups(0,1,2)==true);
-    assert(uf.getDifferentGroupsNumber(0)==2);
-    assert(uf.getDifferentGroupsNumber(1)==2);
-    assert(uf.getDifferentGroupsNumber(2)==2);
-    assert(uf.getDifferentGroupsNumber(3)==2);
-    assert(uf.getDifferentGroupsNumber(4)==2);
+    assert(uf.getNumberOfGroupChanges(0)==1);
+    assert(uf.getNumberOfGroupChanges(1)==1);
+    assert(uf.getNumberOfGroupChanges(2)==1);
+    assert(uf.getNumberOfGroupChanges(3)==1);
+    assert(uf.uniteGroups(0,1,2)==true);
+    assert(uf.getNumberOfGroupChanges(0)==2);
+    assert(uf.getNumberOfGroupChanges(1)==2);
+    assert(uf.getNumberOfGroupChanges(2)==2);
+    assert(uf.getNumberOfGroupChanges(3)==2);
+    assert(uf.getNumberOfGroupChanges(4)==2);
     uf.addGroup(3, 3);
     uf.addElement(5, 5, 3);
     uf.addElement(6, 6, 3);
-    uf.unionGroups(3, 2, 4);
-    assert(uf.getDifferentGroupsNumber(5)==2);
-    assert(uf.getDifferentGroupsNumber(6)==2);
+    uf.uniteGroups(3, 2, 4);
+    assert(uf.getNumberOfGroupChanges(5)==2);
+    assert(uf.getNumberOfGroupChanges(6)==2);
     //single element check
     uf.addElement(7, 7, 4);
-    assert(uf.getDifferentGroupsNumber(7)==1);
-    assert(uf.unionGroups(0,1,8)==true);
+    assert(uf.getNumberOfGroupChanges(7)==1);
+    assert(uf.uniteGroups(0,1,8)==true);
     assert(uf.groupSize(8)==0);
-    uf.unionGroups(4, 8, 9);
+    uf.uniteGroups(4, 8, 9);
     std::cout << "test3 passed" << std::endl;
 }
 
+// HASH TABLE TESTS //
 void unitTestHashTable1() {
     HashTable<int> ht;
     ht.set(10, 1);

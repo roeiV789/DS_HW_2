@@ -32,14 +32,14 @@ struct GroupNode {
 template<class Group, class Elem>
 class UnionFind {
     HashTable<std::shared_ptr<ElementNode<Elem> > > elementsTable;
-    HashTable<std::unique_ptr<GroupNode<Group, Elem> > > groupsTable;
+    HashTable<std::shared_ptr<GroupNode<Group, Elem> > > groupsTable;
 
 public:
     UnionFind();
 
     ~UnionFind();
 
-    int find(int elementId);
+    int findElementGroup(int elementId);
 
     bool addElement(int elementId, const Elem &element, int groupId);
 
@@ -73,13 +73,13 @@ template<class Group, class Elem>
 UnionFind<Group, Elem>::~UnionFind() = default;
 
 template<class Group, class Elem>
-int UnionFind<Group, Elem>::find(int elementId) {
+int UnionFind<Group, Elem>::findElementGroup(int elementId) {
     //check if element is in the structure
     //auto elementPtr = elementsTable.hash(elementId);
-    auto elementPtr = elementsTable[elementId];
-    if (!elementPtr) {
+    if (!elementsTable.isPresent(elementId)) {
         return -1;
     }
+    auto elementPtr = elementsTable[elementId];
     //find the root of the group
     return elementPtr->findRoot()->groupId;
 }
@@ -87,23 +87,21 @@ int UnionFind<Group, Elem>::find(int elementId) {
 //creates an empty group
 template<class Group, class Elem>
 bool UnionFind<Group, Elem>::addGroup(int groupId, const Group &group) {
-    if (groupsTable[groupId]) {
+    if (groupsTable.isPresent(groupId)) {
         return false;
     }
     std::shared_ptr<GroupNode<Group, Elem> > newGroup = std::make_shared<GroupNode<Group, Elem> >(group, groupId);
-    groupsTable[groupId] = newGroup;
+    groupsTable.set(newGroup, groupId);
     return true;
 }
 
 template<class Group, class Elem>
 bool UnionFind<Group, Elem>::addElement(int elementId, const Elem &element, int groupId) {
-    if (elementsTable[elementId]) {
+    if (elementsTable.isPresent(elementId) ||
+        !groupsTable.isPresent(groupId)) {
         return false;
     }
     auto groupPtr = groupsTable[groupId];
-    if (!groupPtr) {
-        return false;
-    }
     std::shared_ptr<ElementNode<Elem> > newElement = std::make_shared<ElementNode<Elem> >(element, groupId);
     if (groupPtr->size == 0) {
         groupPtr->root = newElement.get();
@@ -112,23 +110,25 @@ bool UnionFind<Group, Elem>::addElement(int elementId, const Elem &element, int 
         newElement->groupChanges -= groupPtr->root->groupChanges;
     }
     groupPtr->size += 1;
-    elementsTable[elementId] = newElement;
+    elementsTable.set(newElement, elementId);
     return true;
 }
 
 template<class Group, class Elem>
 bool UnionFind<Group, Elem>::uniteGroups(int groupId1, int groupId2, int groupId3) {
-    auto rootPtr1 = groupsTable[groupId1];
-    auto rootPtr2 = groupsTable[groupId2];
-    if (!rootPtr1 || !rootPtr2 || groupsTable[groupId3]) {
+    if (!groupsTable.isPresent(groupId1) ||
+        !groupsTable.isPresent(groupId2) ||
+        groupsTable.isPresent(groupId3)) {
         return false;
     }
+    auto rootPtr1 = groupsTable[groupId1];
+    auto rootPtr2 = groupsTable[groupId2];
     if (rootPtr1->groupId == rootPtr2->groupId) {
         return false;
     }
     std::shared_ptr<GroupNode<Group, Elem> > mergedGroup = std::make_shared<GroupNode<Group, Elem> >(Group(), groupId3);
     mergedGroup->size = rootPtr1->size + rootPtr2->size;
-    groupsTable[groupId3] = mergedGroup;
+    groupsTable.set(mergedGroup, groupId3);
     if (rootPtr1->size >= rootPtr2->size) {
         //updating the pointers of the new group
         mergedGroup->root = rootPtr1->root;
@@ -157,21 +157,20 @@ bool UnionFind<Group, Elem>::uniteGroups(int groupId1, int groupId2, int groupId
 
 template<class Group, class Elem>
 int UnionFind<Group, Elem>::groupSize(int groupId) const {
-    auto groupPtr = groupsTable[groupId];
-    if (!groupPtr) {
+    if (!groupsTable.isPresent(groupId)) {
         return -1;
     }
+    auto groupPtr = groupsTable[groupId];
     return groupPtr->size;
 }
 
 // Returns -1 if the element does not exist
 template<class Group, class Elem>
 int UnionFind<Group, Elem>::getNumberOfGroupChanges(int elementId) const {
-    auto elementPtr = elementsTable[elementId];
-    if (!elementPtr) {
+    if (!elementsTable.isPresent(elementId)) {
         return -1;
     }
-
+    auto elementPtr = elementsTable[elementId];
     elementPtr->findRoot(); //path compression and groupChanges update
     int sum = 0;
     if (!elementPtr->parent) {
