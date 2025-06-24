@@ -14,14 +14,16 @@ void unitTestHashTable1();
 
 void unitTestHashTable2();
 
-int main() {
+//remove when testing, comments added to avoid linker error while compiling
+
+/*int main() {
     unitTest1();
     unitTest2();
     unitTest3();
     unitTestHashTable1();
     unitTestHashTable2();
     return 0;
-}
+}*/
 
 //this test checks if the basic add,find,union work
 void unitTest1() {
