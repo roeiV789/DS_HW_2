@@ -44,6 +44,11 @@ void unitTest1() {
     assert(uf.groupSize(2)==4);
     assert(uf.findElementGroup(2)==2);
     assert(uf.findElementGroup(3)==2);
+    // empty group case
+    uf.addGroup(3,3);
+    uf.addGroup(4,4);
+    uf.uniteGroups(3,4,5);
+
     std::cout << "test1 passed" << std::endl;
 }
 

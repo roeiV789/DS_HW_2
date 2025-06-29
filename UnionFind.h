@@ -1,6 +1,7 @@
 #pragma once
 #include "HashTable.h"
 #include <memory>
+
 template<class Elem>
 
 struct ElementNode {
@@ -127,29 +128,37 @@ bool UnionFind<Group, Elem>::uniteGroups(int groupId1, int groupId2, int groupId
         return false;
     }
     std::shared_ptr<GroupNode<Group, Elem> > mergedGroup = std::make_shared<GroupNode<Group, Elem> >(Group(), groupId3);
-    mergedGroup->size = rootPtr1->size + rootPtr2->size;
     groupsTable.set(mergedGroup, groupId3);
-    if (rootPtr1->size >= rootPtr2->size) {
+
+    if (
+        (rootPtr1->root == nullptr && rootPtr1->size != 0) ||
+        (rootPtr2->root == nullptr && rootPtr2->size != 0) ||
+        (rootPtr1->root != nullptr && rootPtr1->size == 0) ||
+        (rootPtr2->root != nullptr && rootPtr2->size == 0)
+    ) {
+        throw std::logic_error("Invariant violation: empty group has a root or non-empty group has no root.");
+    }
+
+    auto largeGroup = rootPtr1->size >= rootPtr2->size ? rootPtr1 : rootPtr2;
+    auto smallGroup = rootPtr1->size < rootPtr2->size ? rootPtr1 : rootPtr2;
+
+    mergedGroup->root = largeGroup->root;
+    mergedGroup->size = largeGroup->size + smallGroup->size;
+
+    if (mergedGroup->size) {
         //updating the pointers of the new group
-        mergedGroup->root = rootPtr1->root;
         mergedGroup->root->groupId = groupId3;
-        rootPtr2->root->parent = mergedGroup->root;
+        if (smallGroup->size) {
+            smallGroup->root->parent = mergedGroup->root;
+            smallGroup->root->groupChanges -= mergedGroup->root->groupChanges;
+        }
         //updating groupChanges field - big tree increases, small tree will hold the difference for sum up the tree
         mergedGroup->root->groupChanges += 1;
-        rootPtr2->root->groupChanges += 1;
-        rootPtr2->root->groupChanges -= mergedGroup->root->groupChanges;
-    } else {
-        //updating the pointers of the new group
-        mergedGroup->root = rootPtr2->root;
-        mergedGroup->root->groupId = groupId3;
-        rootPtr1->root->parent = mergedGroup->root;
-        //updating groupChanges field - big tree increases, small tree will hold the difference for sum up the tree
-        mergedGroup->root->groupChanges += 1;
-        rootPtr1->root->groupChanges += 1;
-        rootPtr1->root->groupChanges -= mergedGroup->root->groupChanges;
     }
 
     //the groups are now empty
+    rootPtr1->root = nullptr;
+    rootPtr2->root = nullptr;
     rootPtr1->size = 0;
     rootPtr2->size = 0;
     return true;
