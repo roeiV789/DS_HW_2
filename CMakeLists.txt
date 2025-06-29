@@ -11,6 +11,8 @@ add_executable(HW2
         UnionFind.h
         HashTable.h
         wet2util.h
-#       main25b2.cpp    # RELEASE MODE
+        dspotify25b2.cpp
+        dspotify25b2.h
+#        main25b2.cpp    # RELEASE MODE
         unit_tests.cpp  # UNIT TEST MODE
 )
